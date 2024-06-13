@@ -2,22 +2,31 @@ import { useEffect } from 'react';
 import Table from 'react-bootstrap/Table';
 import { fetchALLUser } from '../services/UserService';
 import { useState } from 'react';
+import ReactPaginate from 'react-paginate';
 
 const TableUsers = (props) => {
     const [listUsers, setListUsers] = useState([]);
+    const [totalUsers, setTotalUsers] = useState(0);
+    const [totalPage, setTotalPage] = useState(0);
 
     useEffect(() => {
-        getUsers();
+        getUsers(1);
     }, [])
 
-    const getUsers = async () => {
-        let res = await fetchALLUser();
+    const getUsers = async (page) => {
+        let res = await fetchALLUser(page);
         if (res && res.data) {
+            setTotalUsers(res.total)
             setListUsers(res.data)
+            setTotalPage(res.total_pages)
         }
     }
 
-    console.log(listUsers)
+    const handlePageClick = (event) => {
+        console.log("event lib: ", event)
+        getUsers(+event.selected + 1);
+
+    }
     return (<>
         <Table striped bordered hover>
             <thead>
@@ -43,6 +52,25 @@ const TableUsers = (props) => {
                 }
             </tbody>
         </Table>
+        <ReactPaginate
+            breakLabel="..."
+            nextLabel="next >"
+            onPageChange={handlePageClick}
+            pageRangeDisplayed={5}
+            pageCount={totalPage}
+            previousLabel="< previous"
+
+            pageClassName='page-item'
+            pageLinkClassName='page-link'
+            previousClassName='page-item'
+            previousLinkClassName='page-link'
+            nextClassName='page-item'
+            nextLinkClassName='page-link'
+            breakClassName='page-item'
+            breakLinkClassName='page-link'
+            containerClassName='pagination'
+            activeClassName='active'
+        />
     </>)
 }
 
